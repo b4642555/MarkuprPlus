@@ -9,6 +9,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { ThemeProvider } from './components/ThemeProvider';
 import { initAudioCapture, destroyAudioCapture } from './audio/AudioCaptureRenderer';
 import CaptureOverlayApp from './overlays/CaptureOverlayApp';
+import { installTraditionalChineseUi } from './traditionalChinese';
 
 // Import global styles (includes CSS reset and theme utilities)
 import './styles/globals.css';
@@ -43,6 +44,7 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 const root = createRoot(container);
+installTraditionalChineseUi();
 root.render(
   <React.StrictMode>
     {isCaptureOverlay ? (
