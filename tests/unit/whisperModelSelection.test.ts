@@ -78,4 +78,10 @@ describe('Whisper model selection', () => {
     expect(service.isModelAvailable()).toBe(true);
     expect(service.getConfig().modelPath).toBe(explicitPath);
   });
+
+  it('auto-detects the spoken language by default', () => {
+    const service = new WhisperService();
+
+    expect(service.getConfig().language).toBe('auto');
+  });
 });
