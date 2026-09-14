@@ -118,7 +118,7 @@ const DEFAULT_SETTINGS: AppSettings = {
 
   // Transcription
   transcriptionService: 'openai',
-  language: 'en',
+  language: 'auto',
   enableKeywordTriggers: false,
 
   // Hotkeys

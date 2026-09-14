@@ -45,7 +45,7 @@ export interface WhisperServiceOptions extends Partial<WhisperConfig> {
 
 const DEFAULT_CONFIG: WhisperConfig = {
   modelPath: '', // Set dynamically
-  language: 'en',
+  language: 'auto',
   threads: Math.max(1, Math.floor(os.cpus().length / 2)), // Half CPU cores
   translateToEnglish: false,
 };
