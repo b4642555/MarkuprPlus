@@ -1,13 +1,12 @@
 /**
- * Local Traditional Chinese UI overlay for the Windows build.
- *
- * MarkuprPlus 3.1.2 does not expose a renderer locale/i18n system.  Keep this
- * layer deliberately small and dependency-free: it translates visible UI
- * labels after React renders them, while leaving the application logic and
- * stored session data untouched.
+ * Optional Traditional Chinese interface translation catalog.
+ * English source labels are retained by the shared UI localizer.
  */
+import type { UiTranslationCatalog } from './i18n/catalogs';
 
 const EXACT_TRANSLATIONS: Record<string, string> = {
+  'Interface language': '介面語言',
+  'English by default. Changes apply immediately.': '預設為英文。變更會立即套用。',
   'Recording Active': '正在錄製',
   'Latest Report Path': '最新報告位置',
   'Session Recording': '工作階段錄影',
@@ -136,6 +135,8 @@ const EXACT_TRANSLATIONS: Record<string, string> = {
   'Local Rules': '本機規則',
   'Use your installed Codex CLI and existing ChatGPT login.': '使用已安裝的 Codex CLI 與現有 ChatGPT 登入狀態。',
   'Use your installed and signed-in Claude Code CLI.': '使用已安裝且已登入的 Claude Code CLI。',
+  'Use your installed GitHub Copilot CLI and existing GitHub login.': '使用已安裝的 GitHub Copilot CLI 與現有 GitHub 登入狀態。',
+  'Scanning for an installed GitHub Copilot CLI.': '正在尋找已安裝的 GitHub Copilot CLI。',
   'Generate reports with your configured OpenCode providers.': '使用已設定的 OpenCode 服務產生報告。',
   'Generate reports with Cursor Agent in read-only Ask mode.': '使用 Cursor Agent 的唯讀 Ask 模式產生報告。',
   'Use Qwen Code in safe, non-interactive mode.': '以安全的非互動模式使用 Qwen Code。',
@@ -433,6 +434,7 @@ const EXACT_TRANSLATIONS: Record<string, string> = {
   'Runs through the companion CLI Bridge.': '會透過搭配使用的 CLI 橋接程式執行。',
   'Codex default': 'Codex 預設值',
   'Claude Code default': 'Claude Code 預設值',
+  'GitHub Copilot default': 'GitHub Copilot 預設值',
   'OpenCode default': 'OpenCode 預設值',
   'Cursor default': 'Cursor 預設值',
   'Qwen default': 'Qwen 預設值',
@@ -647,89 +649,7 @@ const FRAGMENT_TRANSLATIONS: Array<[string, string]> = [
   [' to undo', ' 以復原'],
 ];
 
-function translateValue(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return value;
-
-  const exact = EXACT_TRANSLATIONS[trimmed];
-  if (exact) {
-    return value.replace(trimmed, exact);
-  }
-
-  let translated = value;
-  for (const [source, target] of FRAGMENT_TRANSLATIONS) {
-    translated = translated.split(source).join(target);
-  }
-  return translated;
-}
-
-function shouldSkipElement(element: Element): boolean {
-  const tag = element.tagName.toLowerCase();
-  return tag === 'script' || tag === 'style' || tag === 'textarea' || tag === 'input' || tag === 'pre' || element.hasAttribute('contenteditable');
-}
-
-function translateTextNodes(root: Node): void {
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  const nodes: Text[] = [];
-  let current: Node | null = walker.nextNode();
-  while (current) {
-    nodes.push(current as Text);
-    current = walker.nextNode();
-  }
-
-  for (const node of nodes) {
-    const parent = node.parentElement;
-    if (!parent || shouldSkipElement(parent) || parent.closest('script,style,textarea,input,pre,[contenteditable="true"]')) {
-      continue;
-    }
-    const translated = translateValue(node.nodeValue ?? '');
-    if (translated !== node.nodeValue) {
-      node.nodeValue = translated;
-    }
-  }
-}
-
-function translateAttributes(root: Element): void {
-  const elements = [root, ...Array.from(root.querySelectorAll('*'))];
-  for (const element of elements) {
-    const tag = element.tagName.toLowerCase();
-    if (tag === 'script' || tag === 'style' || tag === 'pre') continue;
-    for (const name of ['title', 'aria-label', 'placeholder', 'data-tooltip-content']) {
-      const value = element.getAttribute(name);
-      if (!value) continue;
-      const translated = translateValue(value);
-      if (translated !== value) {
-        element.setAttribute(name, translated);
-      }
-    }
-  }
-}
-
-export function installTraditionalChineseUi(): void {
-  if (document.documentElement.dataset.markuprplusTraditionalChinese === '1') return;
-  document.documentElement.dataset.markuprplusTraditionalChinese = '1';
-
-  let scheduled = false;
-  const translate = () => {
-    scheduled = false;
-    if (!document.body) return;
-    translateTextNodes(document.body);
-    translateAttributes(document.body);
-  };
-  const schedule = () => {
-    if (scheduled) return;
-    scheduled = true;
-    queueMicrotask(translate);
-  };
-
-  const observer = new MutationObserver(schedule);
-  observer.observe(document.documentElement, {
-    subtree: true,
-    childList: true,
-    characterData: true,
-    attributes: true,
-    attributeFilter: ['title', 'aria-label', 'placeholder', 'data-tooltip-content'],
-  });
-
-  schedule();
-}
+export const traditionalChineseCatalog: UiTranslationCatalog = {
+  exact: EXACT_TRANSLATIONS,
+  fragments: FRAGMENT_TRANSLATIONS,
+};

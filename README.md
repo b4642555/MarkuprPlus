@@ -275,6 +275,23 @@ Marked issues are numbered `MX-001…`; items that come from narration alone are
   </tr>
 </table>
 
+## Interface Language
+
+The desktop interface defaults to **English**, including when upgrading from an
+installation that previously displayed Traditional Chinese automatically.
+Choose **Settings > General > Language > Interface language** to opt into
+**Traditional Chinese** or switch back to English. The preference is saved and
+applies immediately across open windows without restarting or interrupting a
+recording. Resetting General settings restores English.
+
+Interface language is separate from transcription language. Feedback text,
+recordings, and generated reports are not translated by this setting.
+
+To add another interface language, register its identifier and display name in
+`src/shared/uiLanguage.ts` and its translation catalog in
+`src/renderer/i18n/catalogs.ts`. English labels are the source and fallback for
+missing translations; mark user-content regions with `translate="no"`.
+
 ## Report Providers
 
 Pick the model that turns a capture into a structured report. MarkuprPlus checks each one **before** you record and shows you what it actually found.
@@ -285,6 +302,7 @@ In the Mac App Store app, CLI providers use the optional local companion describ
 |---|---|---|
 | **Codex CLI** | CLI | Your installed Codex CLI and existing ChatGPT login, in a read-only ephemeral session |
 | **Claude Code CLI** | CLI | The Claude Code CLI you're already signed in to |
+| **GitHub Copilot CLI** | CLI | Copilot CLI 1.0.83+ with your existing GitHub login, in an isolated tool-free session |
 | **OpenCode** | CLI | Your configured OpenCode provider, with a per-run agent that denies every tool action |
 | **Cursor Agent CLI** | CLI | Cursor Agent in non-interactive, read-only Ask mode |
 | **Qwen Code** | CLI | Qwen Code in safe, non-interactive plan mode with mutation tools excluded |
@@ -299,7 +317,22 @@ In the Mac App Store app, CLI providers use the optional local companion describ
 
 **Failure is safe by design.** If the provider you picked errors out, the deterministic Local rules report is written anyway, and the popover names the provider and the reason. Your recording, audio, and marks were already on disk before analysis started. An explicit CLI choice never silently becomes an Anthropic call.
 
-Codex CLI and OpenCode can receive captured screenshots. Transcript-only CLI adapters reject screenshot-only sessions instead of inventing visual findings.
+Codex CLI, GitHub Copilot CLI, and OpenCode can receive captured screenshots. Transcript-only CLI adapters reject screenshot-only sessions instead of inventing visual findings.
+
+To use **GitHub Copilot CLI**, install or update `copilot`, run `copilot login`
+in Terminal, then select **GitHub Copilot CLI** in Report Settings and refresh
+providers. Leave the model blank to use your Copilot default, or enter a Copilot
+model ID. Discovery verifies the installed version; authentication is verified
+when a report runs. The optional CLI Bridge provides the same integration for
+the Mac App Store app.
+
+Copilot receives the transcript over stdin and screenshots as attachments.
+Each report uses a temporary Copilot configuration that reuses only your login
+identity (credentials remain in the OS credential store) and default model, not
+your plugins, hooks, MCP servers, or saved permissions. All model tools and
+custom instructions are disabled. Temporary context is removed after success
+or failure. Environment-token authentication is also supported; plaintext
+credential fallbacks are not copied into the temporary configuration.
 
 `processing-trace.json` records exactly what happened:
 
